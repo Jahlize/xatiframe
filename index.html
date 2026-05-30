@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cybernetic Haven - Xat Frame</title>
+    <title>XatFrame - Animación de Humo Ciberpunk</title>
     <style>
+        /* Reset de Estilos Básicos */
         * {
             margin: 0;
             padding: 0;
@@ -15,165 +16,189 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #000;
-            font-family: sans-serif;
+            background-color: #030305;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* Contenedor principal del XatFrame */
-        .xatframe-container {
+        /* Contenedor Principal del XatFrame */
+        .xatframe-wrapper {
             position: relative;
             width: 100vw;
             height: 100vh;
-            /* Reemplaza con tu imagen de fondo si es necesario, actualmente simula la ciudad cyberpunk */
             background: url('https://xatimg.com/image/aQcCfqntwxDZ.png') center center / cover no-repeat;
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
         }
 
-        /* Capa superpuesta para oscurecer u optimizar la vista del chat (opcional) */
-        .overlay {
+        /* Capa de Iluminación Ambiental (Vignette & Glow) */
+        .ambient-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.2);
-            z-index: 1;
+            background: radial-gradient(circle at center, transparent 30%, rgba(5, 5, 15, 0.4) 70%, rgba(2, 2, 8, 0.8) 100%);
+            z-index: 2;
+            pointer-events: none;
         }
 
-        /* Contenedor del Marco */
-        .frame-wrapper {
-            position: relative;
-            width: 90%;
-            max-width: 1000px;
-            height: 80%;
-            max-height: 550px;
-            z-index: 10;
-            border: 15px solid transparent;
-            /* Simulación del marco metálico texturizado con bordes cibernéticos */
-            border-image: linear-gradient(135deg, #2b3a4a, #0f171e, #3a4f66, #0f171e) 1;
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2), inset 0 0 20px rgba(0, 212, 255, 0.2);
-            background: rgba(10, 15, 23, 0.75);
-            backdrop-filter: blur(4px);
-            border-radius: 4px;
-        }
-
-        /* Espacio reservado para incrustar la aplicación o el chat de xat */
-        .xat-chat-area {
+        /* Canvas para la Animación de Humo Dinámica */
+        #smokeCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            border: none;
-            background: transparent;
-        }
-
-        /* --- EFECTO DE HUMO ANIMADO --- */
-        .smoke-container {
-            position: absolute;
-            top: -10%;
-            left: -10%;
-            width: 120%;
-            height: 120%;
-            z-index: 5; /* Por encima del fondo, por debajo del marco del chat */
+            z-index: 3;
             pointer-events: none; /* Permite hacer clic a través del humo */
-            overflow: hidden;
-            opacity: 0.65;
         }
 
-        .smoke-particle {
-            position: absolute;
-            background-size: contain;
-            background-repeat: no-repeat;
-            mix-blend-mode: screen;
-            filter: blur(8px);
-        }
-
-        /* Humo Morado/Azul (Izquierda e Inferior) */
-        .smoke-1 {
-            bottom: -50px;
-            left: -50px;
-            width: 500px;
-            height: 500px;
-            background-image: radial-gradient(circle, rgba(138, 43, 226, 0.4) 0%, rgba(0, 0, 255, 0.1) 50%, transparent 70%);
-            animation: drift-left 12s infinite linear alternate;
-        }
-
-        /* Humo Verde/Cyan (Derecha y Superior) */
-        .smoke-2 {
-            top: -50px;
-            right: -50px;
-            width: 600px;
-            height: 600px;
-            background-image: radial-gradient(circle, rgba(0, 255, 200, 0.3) 0%, rgba(0, 128, 128, 0.1) 60%, transparent 70%);
-            animation: drift-right 16s infinite linear alternate;
-        }
-
-        /* Capa extra de humo ambiental flotante */
-        .smoke-3 {
-            top: 30%;
-            left: 20%;
-            width: 400px;
-            height: 400px;
-            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
-            animation: drift-center 20s infinite ease-in-out alternate;
-        }
-
-        /* --- ANIMACIONES CSS --- */
-        @keyframes drift-left {
-            0% {
-                transform: translate(0, 0) rotate(0deg) scale(1);
-            }
-            50% {
-                transform: translate(30px, -40px) rotate(45deg) scale(1.1);
-            }
-            100% {
-                transform: translate(-20px, -80px) rotate(90deg) scale(0.9);
-            }
-        }
-
-        @keyframes drift-right {
-            0% {
-                transform: translate(0, 0) rotate(0deg) scale(0.9);
-            }
-            50% {
-                transform: translate(-40px, 30px) rotate(-60deg) scale(1.2);
-            }
-            100% {
-                transform: translate(10px, 60px) rotate(-120deg) scale(1);
-            }
-        }
-
-        @keyframes drift-center {
-            0% {
-                transform: translate(-50px, -50px) scale(1);
-                opacity: 0.3;
-            }
-            50% {
-                opacity: 0.6;
-            }
-            100% {
-                transform: translate(50px, 50px) scale(1.3);
-                opacity: 0.2;
-            }
+        /* Contenedor del Chat Invisible / Transparente para interactuar en xat */
+        .chat-interaction-layer {
+            position: relative;
+            width: 82%;
+            max-width: 900px;
+            height: 70%;
+            max-height: 500px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            pointer-events: auto; /* Mantiene activos los clics dentro de la zona del chat */
         }
     </style>
 </head>
 <body>
 
-    <div class="xatframe-container">
-        <div class="overlay"></div>
+    <div class="xatframe-wrapper">
+        <!-- Capa ambiental neón -->
+        <div class="ambient-overlay"></div>
 
-        <div class="smoke-container">
-            <div class="smoke-particle smoke-1"></div>
-            <div class="smoke-particle smoke-2"></div>
-            <div class="smoke-particle smoke-3"></div>
-        </div>
+        <!-- Render de Humo en HTML5 Canvas -->
+        <canvas id="smokeCanvas"></canvas>
 
-        <div class="frame-wrapper">
-            <div class="xat-chat-area">
-                </div>
+        <!-- Zona de interacción para el chat de Xat (Sin cuadros restrictivos) -->
+        <div class="chat-interaction-layer">
+            <!-- Aquí se acopla el contenido nativo o transparente del chat de xat -->
         </div>
     </div>
 
+    <script>
+        const canvas = document.getElementById('smokeCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Ajustar tamaño del canvas dinámicamente
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Clase Partícula de Humo
+        class SmokeParticle {
+            constructor(x, y, colorType) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 80 + 60; // Tamaño inicial grande para difuminar
+                this.baseSize = this.size;
+                this.speedX = (Math.random() * 0.6 - 0.3) * 1.5;
+                this.speedY = (Math.random() * -0.5 - 0.2) * 1.2; // Movimiento ascendente suave
+                this.colorType = colorType; // 'purple' o 'cyan' basado en los neones de la imagen
+                this.alpha = Math.random() * 0.3 + 0.1; // Opacidad baja y realista
+                this.maxLife = Math.random() * 300 + 200;
+                this.life = this.maxLife;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotationSpeed = Math.random() * 0.006 - 0.003;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.rotation += this.rotationSpeed;
+                this.life--;
+                
+                // Efecto de expansión y desvanecimiento
+                this.size = this.baseSize * (1 + (1 - this.life / this.maxLife) * 0.5);
+                this.alpha = (this.life / this.maxLife) * 0.3;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                
+                // Crear degradado radial para imitar la densidad del humo esponjoso
+                let gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, this.size);
+                
+                if (this.colorType === 'purple') {
+                    // Tonos morados del lado izquierdo e inferior de la imagen
+                    gradient.addColorStop(0, `rgba(140, 50, 255, ${this.alpha})`);
+                    gradient.addColorStop(0.3, `rgba(100, 30, 220, ${this.alpha * 0.5})`);
+                    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                } else {
+                    // Tonos cyan/turquesa del lado derecho y superior
+                    gradient.addColorStop(0, `rgba(0, 255, 210, ${this.alpha * 0.8})`);
+                    gradient.addColorStop(0.4, `rgba(0, 180, 150, ${this.alpha * 0.4})`);
+                    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                }
+
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        const particles = [];
+
+        // Generar partículas en posiciones estratégicas del fondo
+        function emitParticles() {
+            // Lado izquierdo inferior (Foco Morado)
+            if (particles.filter(p => p.colorType === 'purple').length < 35) {
+                if (Math.random() < 0.4) {
+                    particles.push(new SmokeParticle(
+                        Math.random() * (canvas.width * 0.4), 
+                        canvas.height + 50, 
+                        'purple'
+                    ));
+                }
+            }
+            // Lado derecho inferior y medio (Foco Turquesa/Cyan)
+            if (particles.filter(p => p.colorType === 'cyan').length < 35) {
+                if (Math.random() < 0.4) {
+                    particles.push(new SmokeParticle(
+                        canvas.width * 0.6 + Math.random() * (canvas.width * 0.4), 
+                        canvas.height * 0.8 + (Math.random() * 100), 
+                        'cyan'
+                    ));
+                }
+            }
+        }
+
+        // Bucle de animación principal
+        function animate() {
+            // Limpieza suave usando blend-mode para rastro estético (opcional) o limpieza limpia
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            emitParticles();
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+
+                // Eliminar partículas sin vida útil
+                if (particles[i].life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
 </body>
 </html>
